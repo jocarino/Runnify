@@ -81,6 +81,8 @@
     map.on('locationfound', onLocationFound);
 
   } else {
+    var generateRoute = document.getElementById("generateRoute")
+    generateRoute.action = ""
     coordinates = []
     coords.forEach(coord => {
       coordinates.push([coord[1], coord[0]])
