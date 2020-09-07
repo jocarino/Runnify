@@ -90,11 +90,11 @@ def get_route(request):
 
     if form.is_valid():
         running_distance = form.cleaned_data['running_distance']
-        user_location = form.cleaned_data['user_location']
-        user_location = user_location.split(',')
+        user_location_info = form.cleaned_data['user_location']
+        user_location = user_location_info.split(',')
         #print(user_location)
         route = RouteRequest(running_distance= running_distance,
-                             user_location= user_location)
+                             user_location= str(user_location_info))
         route.save()
         
         #generate the route
