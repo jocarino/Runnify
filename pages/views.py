@@ -95,7 +95,7 @@ def get_route(request):
         #print(user_location)
         route = RouteRequest(running_distance= running_distance,
                              user_location= str(user_location_info))
-        route.save()
+        #route.save()
         
         #generate the route
         #print(user_location)

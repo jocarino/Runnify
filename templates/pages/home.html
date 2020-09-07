@@ -25,7 +25,7 @@
 
 <form id="generateRoute" action="route/" method="post">
   {% csrf_token %}
-  {{ form.running_distance }}
+  <a>Running Distance in km:</a>{{ form.running_distance }}
   <input id="user_location" name="user_location" type="hidden" value="random">
   <input type='submit' value="Get me a route" class="btn btn-success"/>
 </form>
