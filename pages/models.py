@@ -10,5 +10,5 @@ class Coordinates(models.Model):
         return self.coordinates
 
 class RouteRequest(models.Model):
-    running_distance = models.FloatField(...)
+    running_distance = models.FloatField()
     user_location = models.CharField(max_length=8000)

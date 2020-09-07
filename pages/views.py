@@ -92,13 +92,13 @@ def get_route(request):
         running_distance = form.cleaned_data['running_distance']
         user_location = form.cleaned_data['user_location']
         user_location = user_location.split(',')
-        print(user_location)
+        #print(user_location)
         route = RouteRequest(running_distance= running_distance,
                              user_location= user_location)
         route.save()
         
         #generate the route
-        print(user_location)
+        #print(user_location)
         route_request = routeRequest(user_location, running_distance)
         route_json = main_as_function(route_request,print_delta=True)
         list_of_coordinates = route_json['0']
