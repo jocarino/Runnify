@@ -23,9 +23,12 @@
 
 <div id="mapid"></div>
 
-<div><a href="#" id='geolocate' class="btn btn-primary">Find me</a></div>
-
-<div><a href="#" id='generateRoute' class="btn btn-success">Get me a route</a></div>
+<form id="generateRoute" action="route/" method="post">
+  {% csrf_token %}
+  {{ form.running_distance }}
+  <input id="user_location" name="user_location" type="hidden" value="random">
+  <input type='submit' value="Get me a route" class="btn btn-success"/>
+</form>
 
 
 <style>
@@ -33,6 +36,7 @@
 </style>
 
 <script>
+
   //var map = L.map('mapid').setView([51.505, -0.09], 13);
   var map = L.map('mapid');
 
@@ -46,45 +50,63 @@
       accessToken: 'pk.eyJ1Ijoiam9jYXJpbm8iLCJhIjoiY2tkdWhobGFlMDdndzJ1bDdnMjJxNnRrcSJ9.yHcTOgEkqFa2OKHU4Kvc3g'
   }).addTo(map);
   
-
-  //var marker = L.marker([51.5, -0.09]).addTo(map);
-
-  var geolocate = document.getElementById('geolocate');
-  // This uses the HTML5 geolocation API, which is available on
-  // most mobile browsers and modern browsers, but not in Internet Explorer
-  //
-  // See this chart of compatibility for details:
-  // http://caniuse.com/#feat=geolocation
-  if (!navigator.geolocation) {
-    geolocate.innerHTML = 'Geolocation is not available';
-  } else {
-      geolocate.onclick = function (e) {
-          e.preventDefault();
-          e.stopPropagation();
-          map.locate({setView: true, maxZoom: 20});
-      };
-  }
-
-  function onLocationFound(e) {
-    L.marker(e.latlng).addTo(map).bindPopup("You are here.").openPopup();
-    geolocate.parentNode.removeChild(geolocate);
-  }
-  
-  map.on('locationfound', onLocationFound);
-
-  var generateRoute = document.getElementById('generateRoute');
-  //switch long and lat
+  //check for passing coordinates
   var coords = {{ coordinates }}
+  console.log(coords,"coords")
+  var user_location_element = document.getElementById("user_location")
+  //var user_location = "new_random";
+  
+  //var marker = L.marker([51.5, -0.09]).addTo(map);
+  if (coords == undefined) {
+    //var geolocate = document.getElementById('geolocate');
+    // This uses the HTML5 geolocation API, which is available on
+    // most mobile browsers and modern browsers, but not in Internet Explorer
+    //
+    // See this chart of compatibility for details:
+    // http://caniuse.com/#feat=geolocation
+    if (!navigator.geolocation) {
+      geolocate.innerHTML = 'Geolocation is not available';
+    } else {
+      map.locate({setView: true, maxZoom: 16});
+    }
+
+    function onLocationFound(e) {
+      L.marker(e.latlng).addTo(map).bindPopup("You are here.").openPopup();
+      //user_location = e.latlng;
+      //geolocate.parentNode.removeChild(geolocate);
+      user_location = [e.latlng.lat,e.latlng.lng];
+      user_location_element.value = user_location;
+    }
+    
+    map.on('locationfound', onLocationFound);
+
+  } else {
     coordinates = []
     coords.forEach(coord => {
       coordinates.push([coord[1], coord[0]])
     });
+    console.log(coordinates, "coordinates")
 
-  generateRoute.onclick = function() {
-    var polygon = L.polygon(coordinates).addTo(map);
-    L.marker(coordinates[0]).addTo(map).bindPopup("You start here.").openPopup();
-    console.log(coordinates,  "coords");
-  };
+    if (!navigator.geolocation) {
+      pass
+    } else {
+      map.locate({setView: true, maxZoom: 20});
+    }
+
+    function onLocationFound(e) {      
+      console.log("location", "found")
+      var polygon = L.polygon(coordinates).addTo(map);
+      L.marker(coordinates[0]).addTo(map).bindPopup("You start here.").openPopup();
+      console.log("onlocationfound", "coords");
+      user_location = [e.latlng.lat,e.latlng.lng];
+      user_location_element.value = user_location;
+    }
+    
+    map.on('locationfound', onLocationFound);
+
+  }
+
+  
   /*
   generateRoute.onclick = function() {
     var coords = {{ coordinates }}

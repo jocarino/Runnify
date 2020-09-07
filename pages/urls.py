@@ -1,8 +1,13 @@
 from django.urls import path
+from django.conf.urls import url
 
-from .views import HomePageView, AboutPageView
+
+from . import views
 
 urlpatterns = [
-    path('', HomePageView, name='home'),
-    path('about/', AboutPageView.as_view(), name='about'),
+    path('', views.HomePageView, name='home'),
+    path('route/', views.get_route, name='route'),
+    path('about/', views.AboutPageView.as_view(), name='about'),
+    #url(r'^signup/$', views.SignUpView.as_view(), name='signup'),
+    #url(r'^ajax/validate_username/$', views.validate_username, name='validate_username'),
 ]

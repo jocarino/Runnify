@@ -1,41 +1,22 @@
 from django.views.generic import TemplateView
+from django.views.generic.edit import CreateView
+from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render
 import json
-from .models import Coordinates
+from .models import Coordinates, RouteRequest
 from .openstreetmaps import main_as_function
 #from django.contrib.gis.utils import GeoIP
 #from django.contrib.gis.geoip2 import GeoIP2
 import geocoder
+from django.forms import modelform_factory
+from .forms import RouteRequestForm
 
-
-
-
-
-'''
-class HomePageView(TemplateView):
-    template_name = 'home.html'
-'''
 
 Coordinates = Coordinates()
 def SaveCoordinatesToDB(list_of_coordinates):
     Coordinates.coordinates = json.dumps(list_of_coordinates)
     Coordinates.save()
-'''    
-def get_client_ip(request):
-   x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-   if x_forwarded_for:
-       ip = x_forwarded_for.split(',')[0]
-   else:
-       ip = request.META.get('REMOTE_ADDR')
-   return ip
 
-
-def get_geolocation_for_ip(ip):
-    url = f"http://api.ipstack.com/37.189.28.173?access_key=9a714779d3b8fbe82691763f96f27f83"
-    response = requests.get(url)
-    response.raise_for_status()
-    return response.json()
-'''
 def get_geolocation():
     '''
     returns tuple (latitude, longitude)
@@ -49,20 +30,83 @@ class routeRequest(object):
         self.lng = coords[1]
         self.original_run = original_run
 
+
+
 def HomePageView(request):
     #g = GeoIP() 
     #lat,lng = g.lat_lon(user_ip)
+    '''
     geo_info = get_geolocation()
     route_request = routeRequest(geo_info, 20)
-    
-    route_json = main_as_function(route_request,print_delta=True)
-    list_of_coordinates = route_json['0']
-    
     #SaveCoordinatesToDB(list_of_coordinates)
+    list_of_coordinates = []
+    
+
+    if request.method == "POST":
+        coordinate_request = CoordinateRequest(request.POST, user_coordinates = "[10,4]")
+        if coordinate_request.is_valid():
+            coordinate_request.save()
+            route_json = main_as_function(route_request,print_delta=True)
+            list_of_coordinates = route_json['0']
+    else:
+        coordinate_request = CoordinateRequest()
+    
     return render(
         request,
         'pages/home.html',
-        context={'coordinates': list_of_coordinates}
+        context={'coordinates': list_of_coordinates,
+                 'coordinate_request': coordinate_request
+        }
+    )
+    '''
+    form = RouteRequestForm()
+    list_of_coordinates = [[51.509, -0.08], [51.503, -0.06], [51.51, -0.047]]
+    return render(
+        request,
+        'pages/home.html',
+        context={'form':form,
+                 #'coordinates':list_of_coordinates
+                 }
+    )
+    
+'''
+def validate_username(request):
+    username = request.GET.get('username', None)
+    data = {
+        'is_taken': User.objects.filter(username__iexact=username).exists()
+    }
+    return JsonResponse(data)
+
+class SignUpView(CreateView):
+    template_name = 'core/signup.html'
+    form_class = UserCreationForm
+'''
+
+def get_route(request):
+    form = RouteRequestForm(request.POST)
+    #get user location
+    user_location_info = get_geolocation()
+    print("#####################################")
+
+    if form.is_valid():
+        running_distance = form.cleaned_data['running_distance']
+        user_location = form.cleaned_data['user_location']
+        user_location = user_location.split(',')
+        print(user_location)
+        route = RouteRequest(running_distance= running_distance,
+                             user_location= user_location)
+        route.save()
+        
+        #generate the route
+        print(user_location)
+        route_request = routeRequest(user_location, running_distance)
+        route_json = main_as_function(route_request,print_delta=True)
+        list_of_coordinates = route_json['0']
+    return render(
+        request,
+        'pages/home.html',
+        context={'form':form,
+                'coordinates':list_of_coordinates}
     )
 
 class AboutPageView(TemplateView):
@@ -70,23 +114,4 @@ class AboutPageView(TemplateView):
 
 
 
-from rest_framework.response import Response
-from rest_framework.reverse import reverse
-from rest_framework.decorators import api_view, permission_classes, authentication_classes
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.authtoken.models import Token
-from rest_framework.status import HTTP_400_BAD_REQUEST
-
-#URL /
-@define_usage(returns={'url_usage': 'Dict'})
-@api_view(['GET'])
-@permission_classes((AllowAny,))
-def api_index(requet):
-    details = {}
-    for item in list(globals().items()):
-        if item[0][0:4] == 'api_':
-            if hasattr(item[1], 'usage'):
-                details[reverse(item[1].__name__)] = item[1].usage
-    return Response(details)
 
