@@ -56,6 +56,13 @@
   console.log(coords,"coords")
   var user_location_element = document.getElementById("user_location")
   
+  function handleRouteGenerationFormDidSubmit(event){
+    event.preventDefault()
+    
+  }
+
+  const routeGenerationFormEl = document.getElementById("route-generate-form")
+  routeGenerationFormEl.addEventListener("submit", handleRouteGenerationFormDidSubmit)
 
   function handleRouteGenerationFormError(msg, display){
     var myErrorDiv = document.getElementById("route-generate-form-error")
