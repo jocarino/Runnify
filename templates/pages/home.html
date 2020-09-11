@@ -23,11 +23,12 @@
 
 <div id="mapid"></div>
 
-<form id="generateRoute" action="route/" method="post">
+<form id="route-generate-form" action="route/" method="post">
   {% csrf_token %}
-  <a>Running Distance in km:</a>{{ form.running_distance }}
+  <input required="required" type="number" class="form-control" placeholder="Running distance (km)">
   <input id="user_location" name="user_location" type="hidden" value="random">
-  <input type='submit' value="Get me a route" class="btn btn-success"/>
+  <input type='submit' value="Get me a route!" class="btn btn-success"/>
+  <div class='d-none alert alert-danger' id='route-generate-form-error'></div>
 </form>
 
 
