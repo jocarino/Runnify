@@ -144,6 +144,7 @@
     if (display) {
       myErrorDiv.setAttribute("class", "alert alert-danger")
       myErrorDiv.innerText = msg
+      handleRouteGenerationLoading("", false)
     } else {
       myErrorDiv.setAttribute("class", "d-none alert alert-danger")
     }
