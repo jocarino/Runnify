@@ -29,6 +29,7 @@
   <input id="user_location" name="user_location" type="hidden" value="random"/>
   <input type='submit' value="Get me a route!" class="btn btn-success"/>
   <div class='d-none alert alert-danger' id='route-generate-form-error'></div>
+  <div class='d-none alert alert-primary' id='route-generate-await'></div>
 </form>
 
 
@@ -118,9 +119,11 @@
           console.log(error)
         }
         rederingGeneratedRouteOnMap(coords)
+        
       } else {
         handleRouteGenerationFormError("An error occurred. Please try again later.", true)
       }
+      handleRouteGenerationLoading("", false)
     }
     xhr.onerror = function() {
         alert("An error occurred. Please try again later.")
@@ -129,8 +132,9 @@
 
   }
 
+  
   const routeGenerationFormEl = document.getElementById("route-generate-form")
-  routeGenerationFormEl.addEventListener("submit", handleRouteGenerationFormDidSubmit)
+  routeGenerationFormEl.addEventListener("submit", handleRouteGenerationFormDidSubmit, handleRouteGenerationLoading("We're getting you your route...", true))
 
   function handleRouteGenerationFormError(msg, display){
     var myErrorDiv = document.getElementById("route-generate-form-error")
@@ -141,7 +145,18 @@
       myErrorDiv.setAttribute("class", "d-none alert alert-danger")
     }
 
-  }  
+  } 
+  
+  function handleRouteGenerationLoading(msg, display){
+    var myLoadingDiv = document.getElementById("route-generate-await")
+    if (display) {
+      myErrorDiv.setAttribute("class", "alert alert-primary")
+      myErrorDiv.innerText = msg
+    } else {
+      myErrorDiv.setAttribute("class", "d-none alert alert-primary")
+    }
+
+  } 
 
 
   if (coords == undefined) {
