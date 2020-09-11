@@ -52,10 +52,41 @@
   }).addTo(map);
   
   //check for passing coordinates
-  var coords = {{ coordinates }}
-  console.log(coords,"coords")
+  var coords = undefined
   var user_location_element = document.getElementById("user_location")
   
+  function switchLatAndLng(coordinates){
+    coordinatesCorrected = []
+    coords.forEach(coord => {
+      coordinatesCorrected.push([coord[1], coord[0]])
+    });
+    return coordinatesCorrected
+  }
+
+  function rederingGeneratedRouteOnMap(coordinates){
+    if (!navigator.geolocation) {
+      locationErrorMessage = "Location not found. Try refreshing the page and allowing location permissions."
+      handleRouteGenerationFormError(locationErrorMessage, true)
+    } else {
+      handleRouteGenerationFormError("", false)
+      map.locate({setView: true, maxZoom: 16});
+    }
+
+    function onLocationFound(e) {      
+      //console.log("location", "found")
+      coordinatesCorrected = switchLatAndLng(coordinates)
+      var polygon = L.polyline(coordinatesCorrected).addTo(map);
+      L.marker(coordinatesCorrected[0]).addTo(map).bindPopup("You start here.").openPopup();
+      //console.log("onlocationfound", "coords");
+      user_location = [e.latlng.lat,e.latlng.lng];
+      user_location_element.value = user_location;
+    }
+    
+    map.on('locationfound', onLocationFound);
+
+  }
+  
+
   function handleRouteGenerationFormDidSubmit(event){
     event.preventDefault()
     const myForm = event.target
@@ -73,7 +104,18 @@
       if (xhr.status === 201) {
         handleRouteGenerationFormError("", false)
         const newRouteJson = xhr.response
-        console.log(newRouteJson,"route json")
+        coords = newRouteJson.coordinates
+        // try removing last generated route
+/*         try {
+          layers = map.layers
+          console.log(layers)
+          layers.forEach(layer => {
+            if(layer != tileLayer){ map.removeLayer(polyline)}
+          });
+        } catch (error) {
+          console.log(error)
+        } */
+        rederingGeneratedRouteOnMap(coords)
       } else {
         console.log("error")
       }
@@ -125,7 +167,7 @@
     
     map.on('locationfound', onLocationFound);
 
-  } else {
+  } /* else {
     var generateRoute = document.getElementById("generateRoute")
     generateRoute.action = ""
     coordinates = []
@@ -154,6 +196,7 @@
     map.on('locationfound', onLocationFound);
 
   }
+ */
 
 </script>
 
