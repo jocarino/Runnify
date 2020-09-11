@@ -55,9 +55,20 @@
   var coords = {{ coordinates }}
   console.log(coords,"coords")
   var user_location_element = document.getElementById("user_location")
-  //var user_location = "new_random";
   
-  //var marker = L.marker([51.5, -0.09]).addTo(map);
+
+  function handleRouteGenerationFormError(msg, display){
+    var myErrorDiv = document.getElementById("route-generate-form-error")
+    if (display) {
+      myErrorDiv.setAttribute("class", "alert alert-danger")
+      myErrorDiv.innerText = msg
+    } else {
+      myErrorDiv.setAttribute("class", "d-none alert alert-danger")
+    }
+
+  }  
+
+
   if (coords == undefined) {
     //var geolocate = document.getElementById('geolocate');
     // This uses the HTML5 geolocation API, which is available on
@@ -66,15 +77,17 @@
     // See this chart of compatibility for details:
     // http://caniuse.com/#feat=geolocation
     if (!navigator.geolocation) {
-      geolocate.innerHTML = 'Geolocation is not available';
+      // Show location error
+      locationErrorMessage = "Location not found. Try refreshing the page and allowing location permissions."
+      handleRouteGenerationFormError(locationErrorMessage, true)
     } else {
+      // Hide location error
+      handleRouteGenerationFormError("", false)
       map.locate({setView: true, maxZoom: 16});
     }
 
     function onLocationFound(e) {
       L.marker(e.latlng).addTo(map).bindPopup("You are here.").openPopup();
-      //user_location = e.latlng;
-      //geolocate.parentNode.removeChild(geolocate);
       user_location = [e.latlng.lat,e.latlng.lng];
       user_location_element.value = user_location;
     }
@@ -91,8 +104,10 @@
     console.log(coordinates, "coordinates")
 
     if (!navigator.geolocation) {
-      pass
+      locationErrorMessage = "Location not found. Try refreshing the page and allowing location permissions."
+      handleRouteGenerationFormError(locationErrorMessage, true)
     } else {
+      handleRouteGenerationFormError("", false)
       map.locate({setView: true, maxZoom: 16});
     }
 
@@ -108,52 +123,6 @@
     map.on('locationfound', onLocationFound);
 
   }
-
-  
-  /*
-  generateRoute.onclick = function() {
-    var coords = {{ coordinates }}
-    coords.forEach(coord => {
-      L.marker([coord[1], coord[0]]).addTo(map).bindPopup("You start here.").openPopup();  
-    });
-    
-  };
-  */
-
-
-
-  /*
-  // Once we've got a position, zoom and center the map
-  // on it, and add a single marker.
-  map.on('locationfound', function(e){
-      //map.fitBounds(e.bounds);
-      
-      myLayer.setGeoJSON({
-          type: 'Feature',
-          geometry: {
-              type: 'Point',
-              coordinates: [e.latlng.lng, e.latlng.lat]
-          },
-          properties: {
-              'title': 'Here I am!',
-              'marker-color': '#ff8888',
-              'marker-symbol': 'star'
-          }
-      });
-      
-
-      // And hide the geolocation button
-      //geolocate.parentNode.removeChild(geolocate);
-  });
-  */
-  
-  /*
-  // If the user chooses not to allow their location
-  // to be shared, display an error message.
-  map.on('locationerror', function() {
-      geolocate.innerHTML = 'Position could not be found';
-  });
-  */
 
 </script>
 
