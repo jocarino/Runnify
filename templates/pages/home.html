@@ -54,6 +54,7 @@
   //check for passing coordinates
   var coords = undefined
   var user_location_element = document.getElementById("user_location")
+  var mapLayers = []
   
   function switchLatAndLng(coordinates){
     coordinatesCorrected = []
@@ -75,8 +76,10 @@
     function onLocationFound(e) {      
       //console.log("location", "found")
       coordinatesCorrected = switchLatAndLng(coordinates)
-      var polygon = L.polyline(coordinatesCorrected).addTo(map);
-      L.marker(coordinatesCorrected[0]).addTo(map).bindPopup("You start here.").openPopup();
+      var polylineLayer = L.polyline(coordinatesCorrected).addTo(map);
+      var startPositionMarkerLayer = L.marker(coordinatesCorrected[0]).addTo(map).bindPopup("You start here.").openPopup();
+      mapLayers.push(polylineLayer, startPositionMarkerLayer);
+
       //console.log("onlocationfound", "coords");
       user_location = [e.latlng.lat,e.latlng.lng];
       user_location_element.value = user_location;
@@ -106,15 +109,14 @@
         const newRouteJson = xhr.response
         coords = newRouteJson.coordinates
         // try removing last generated route
-/*         try {
-          layers = map.layers
-          console.log(layers)
-          layers.forEach(layer => {
-            if(layer != tileLayer){ map.removeLayer(polyline)}
+        try {
+          mapLayers.forEach(layer => {
+            map.removeLayer(layer)  
           });
+          mapLayers = []
         } catch (error) {
           console.log(error)
-        } */
+        }
         rederingGeneratedRouteOnMap(coords)
       } else {
         console.log("error")
@@ -160,7 +162,8 @@
     }
 
     function onLocationFound(e) {
-      L.marker(e.latlng).addTo(map).bindPopup("You are here.").openPopup();
+      var currentLocationMarker = L.marker(e.latlng).addTo(map).bindPopup("You are here.").openPopup();
+      mapLayers.push(currentLocationMarker);
       user_location = [e.latlng.lat,e.latlng.lng];
       user_location_element.value = user_location;
     }
