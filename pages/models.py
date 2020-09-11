@@ -12,3 +12,10 @@ class Coordinates(models.Model):
 class RouteRequest(models.Model):
     running_distance = models.FloatField()
     user_location = models.CharField(max_length=8000)
+
+    def serialize(self):
+        return{
+            "id": self.id,
+            "running_distance": self.running_distance,
+            "user_location": self.user_location,
+        }

@@ -1,7 +1,7 @@
 from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView
 from django.contrib.auth.forms import UserCreationForm
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 import json
 from .models import Coordinates, RouteRequest
 from .openstreetmaps import main_as_function
@@ -10,6 +10,14 @@ from .openstreetmaps import main_as_function
 import geocoder
 from django.forms import modelform_factory
 from .forms import RouteRequestForm
+from django.conf import settings
+from django.utils.http import is_safe_url
+from django.http import HttpResponse, Http404, JsonResponse
+
+
+
+
+ALLOWED_HOSTS = settings.ALLOWED_HOSTS
 
 
 Coordinates = Coordinates()
@@ -38,7 +46,8 @@ def HomePageView(request):
 
 def get_route(request):
     form = RouteRequestForm(request.POST or None)
-    next_url = request.Post.get("next") or None
+    next_url = request.POST.get("route") or None
+
     if form.is_valid():
         obj = form.save(commit=False)
         
@@ -46,7 +55,6 @@ def get_route(request):
         running_distance = form.cleaned_data['running_distance']
         user_location_info = form.cleaned_data['user_location']
         obj.user_location = user_location_info
-        obj.save()
                 
         #generate the route
         user_location = user_location_info.split(',')
@@ -54,8 +62,16 @@ def get_route(request):
         route_json = main_as_function(route_request,print_delta=True)
         list_of_coordinates = route_json['0']
 
+        # Save form object
+        obj.save()
+
         route = RouteRequest(running_distance= running_distance,
                              user_location= str(user_location_info))
+
+        if request.is_ajax():
+            return JsonResponse({"coordinates": list_of_coordinates}, status=201) # 201 == created items
+        if next_url != None and is_safe_url(next_url, ALLOWED_HOSTS):
+            return redirect(next_url)
     return render(
         request,
         'pages/home.html',

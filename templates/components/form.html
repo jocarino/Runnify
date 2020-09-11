@@ -1,5 +1,4 @@
-<form method='POST'> 
-    {% csrf_token %}
-    {{ form.running_distance.as_p }}
+<form method='POST'> {% csrf_token %}
+    {{ form.as_p }}
     <button type='submit' class='btn btn-secondary'>Get me a route</button>
 </form>

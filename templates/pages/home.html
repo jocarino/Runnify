@@ -23,10 +23,10 @@
 
 <div id="mapid"></div>
 
-<form id="route-generate-form" action="route/" method="post">
+<form id="route-generate-form" action="/route" method="POST">
   {% csrf_token %}
-  <input required="required" type="number" class="form-control" placeholder="Running distance (km)">
-  <input id="user_location" name="user_location" type="hidden" value="random">
+  <input required="required" name="running_distance" type="number" class="form-control" placeholder="Running distance (km)"/>
+  <input id="user_location" name="user_location" type="hidden" value="random"/>
   <input type='submit' value="Get me a route!" class="btn btn-success"/>
   <div class='d-none alert alert-danger' id='route-generate-form-error'></div>
 </form>
@@ -69,10 +69,19 @@
     xhr.setRequestHeader("HTTP_X_REQUESTED_WITH", "XMLHttpRequest")
     xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest")
     xhr.onload = function() {
-      handleRouteGenerationFormError("", false)
-      const newRouteJson = xhr.response
-      console.log(newRouteJson,"route json")
+
+      if (xhr.status === 201) {
+        handleRouteGenerationFormError("", false)
+        const newRouteJson = xhr.response
+        console.log(newRouteJson,"route json")
+      } else {
+        console.log("error")
+      }
     }
+    xhr.onerror = function() {
+        alert("An error occurred. Please try again later.")
+    }
+    xhr.send(myFormData)
 
   }
 
