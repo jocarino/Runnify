@@ -17,14 +17,9 @@ def SaveCoordinatesToDB(list_of_coordinates):
     Coordinates.coordinates = json.dumps(list_of_coordinates)
     Coordinates.save()
 
-def get_geolocation():
-    '''
-    returns tuple (latitude, longitude)
-    '''
-    g = geocoder.ip('me')
-    return (g.lat, g.lng)
 
-class routeRequest(object):
+#object for generation route
+class routeRequestClass(object):
     def __init__(self, coords, original_run):
         self.lat = coords[0]
         self.lng = coords[1]
@@ -33,42 +28,44 @@ class routeRequest(object):
 
 
 def HomePageView(request):
-    #g = GeoIP() 
-    #lat,lng = g.lat_lon(user_ip)
-    '''
-    geo_info = get_geolocation()
-    route_request = routeRequest(geo_info, 20)
-    #SaveCoordinatesToDB(list_of_coordinates)
-    list_of_coordinates = []
-    
-
-    if request.method == "POST":
-        coordinate_request = CoordinateRequest(request.POST, user_coordinates = "[10,4]")
-        if coordinate_request.is_valid():
-            coordinate_request.save()
-            route_json = main_as_function(route_request,print_delta=True)
-            list_of_coordinates = route_json['0']
-    else:
-        coordinate_request = CoordinateRequest()
-    
+    form = RouteRequestForm()
     return render(
         request,
         'pages/home.html',
-        context={'coordinates': list_of_coordinates,
-                 'coordinate_request': coordinate_request
-        }
+        context={},
+        status=200,
     )
-    '''
-    form = RouteRequestForm()
-    list_of_coordinates = [[51.509, -0.08], [51.503, -0.06], [51.51, -0.047]]
+
+def get_route(request):
+    form = RouteRequestForm(request.POST or None)
+    next_url = request.Post.get("next") or None
+    if form.is_valid():
+        obj = form.save(commit=False)
+        
+        #get the info from the frontend
+        running_distance = form.cleaned_data['running_distance']
+        user_location_info = form.cleaned_data['user_location']
+        obj.user_location = user_location_info
+        obj.save()
+                
+        #generate the route
+        user_location = user_location_info.split(',')
+        route_request = routeRequestClass(user_location, running_distance)
+        route_json = main_as_function(route_request,print_delta=True)
+        list_of_coordinates = route_json['0']
+
+        route = RouteRequest(running_distance= running_distance,
+                             user_location= str(user_location_info))
     return render(
         request,
         'pages/home.html',
         context={'form':form,
-                 #'coordinates':list_of_coordinates
-                 }
+                'coordinates':list_of_coordinates}
     )
-    
+
+class AboutPageView(TemplateView):
+    template_name = 'pages/about.html'
+
 '''
 def validate_username(request):
     username = request.GET.get('username', None)
@@ -81,36 +78,6 @@ class SignUpView(CreateView):
     template_name = 'core/signup.html'
     form_class = UserCreationForm
 '''
-
-def get_route(request):
-    form = RouteRequestForm(request.POST)
-    #get user location
-    user_location_info = get_geolocation()
-    print("#####################################")
-
-    if form.is_valid():
-        running_distance = form.cleaned_data['running_distance']
-        user_location_info = form.cleaned_data['user_location']
-        user_location = user_location_info.split(',')
-        #print(user_location)
-        route = RouteRequest(running_distance= running_distance,
-                             user_location= str(user_location_info))
-        #route.save()
-        
-        #generate the route
-        #print(user_location)
-        route_request = routeRequest(user_location, running_distance)
-        route_json = main_as_function(route_request,print_delta=True)
-        list_of_coordinates = route_json['0']
-    return render(
-        request,
-        'pages/home.html',
-        context={'form':form,
-                'coordinates':list_of_coordinates}
-    )
-
-class AboutPageView(TemplateView):
-    template_name = 'pages/about.html'
 
 
 
