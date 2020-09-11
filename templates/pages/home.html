@@ -80,6 +80,8 @@
       var polylineLayer = L.polyline(coordinatesCorrected).addTo(map);
       var startPositionMarkerLayer = L.marker(coordinatesCorrected[0]).addTo(map).bindPopup("You start here.").openPopup();
       mapLayers.push(polylineLayer, startPositionMarkerLayer);
+      //finish display loading when it prints route on the map
+      handleRouteGenerationLoading("", false)
 
       //console.log("onlocationfound", "coords");
       user_location = [e.latlng.lat,e.latlng.lng];
@@ -93,6 +95,7 @@
 
   function handleRouteGenerationFormDidSubmit(event){
     event.preventDefault()
+    handleRouteGenerationLoading("We're getting you your route...", true)
     const myForm = event.target
     const myFormData = new FormData(myForm)
     const url = myForm.getAttribute("action")
@@ -123,18 +126,18 @@
       } else {
         handleRouteGenerationFormError("An error occurred. Please try again later.", true)
       }
-      handleRouteGenerationLoading("", false)
+      
     }
+    
     xhr.onerror = function() {
         alert("An error occurred. Please try again later.")
     }
     xhr.send(myFormData)
-
   }
 
   
   const routeGenerationFormEl = document.getElementById("route-generate-form")
-  routeGenerationFormEl.addEventListener("submit", handleRouteGenerationFormDidSubmit, handleRouteGenerationLoading("We're getting you your route...", true))
+  routeGenerationFormEl.addEventListener("submit", handleRouteGenerationFormDidSubmit)
 
   function handleRouteGenerationFormError(msg, display){
     var myErrorDiv = document.getElementById("route-generate-form-error")
@@ -149,11 +152,12 @@
   
   function handleRouteGenerationLoading(msg, display){
     var myLoadingDiv = document.getElementById("route-generate-await")
+    console.log("loading")
     if (display) {
-      myErrorDiv.setAttribute("class", "alert alert-primary")
-      myErrorDiv.innerText = msg
+      myLoadingDiv.setAttribute("class", "alert alert-primary")
+      myLoadingDiv.innerText = msg
     } else {
-      myErrorDiv.setAttribute("class", "d-none alert alert-primary")
+      myLoadingDiv.setAttribute("class", "d-none alert alert-primary")
     }
 
   } 
