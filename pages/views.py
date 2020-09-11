@@ -63,7 +63,7 @@ def get_route(request):
         list_of_coordinates = route_json['0']
 
         # Save form object
-        obj.save()
+        #obj.save()
 
         route = RouteRequest(running_distance= running_distance,
                              user_location= str(user_location_info))
