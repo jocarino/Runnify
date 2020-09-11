@@ -22,9 +22,9 @@
   <main role="main">
     <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">
       <h5 class="my-0 mr-md-auto font-weight-normal">
-        <a href="{% url 'home' %}">DjangoX</a>
+        <a href="{% url 'home' %}">Runnify</a>
       </h5>
-      <a class="p-2 text-dark" href="{% url 'about' %}">About</a>
+      <a class="p-2 text-dark d-none" href="{% url 'about' %}">About</a>
       <nav class="my-2 my-md-0 mr-md-3">
         {% if user.is_authenticated %}
         <ul class="navbar-nav ml-auto">
@@ -41,8 +41,8 @@
         </ul>
         {% else %}
         <form class="form-inline ml-auto">
-          <a href="{% url 'account_login' %}" class="btn btn-outline-secondary">Log in</a>
-          <a href="{% url 'account_signup' %}" class="btn btn-primary ml-2">Sign up</a>
+          <a href="{% url 'account_login' %}" class="btn btn-outline-secondary d-none">Log in</a>
+          <a href="{% url 'account_signup' %}" class="btn btn-primary ml-2 d-none">Sign up</a>
         </form>
         {% endif %}
       </nav>
@@ -55,7 +55,7 @@
     {% endblock content %}
   </div>
 
-  <footer class="footer">
+  <footer class="footer d-none">
     <div class="container">
       <span class="text-muted">Footer...</span>
     </div>
