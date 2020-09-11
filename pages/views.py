@@ -17,7 +17,7 @@ from django.http import HttpResponse, Http404, JsonResponse
 
 
 
-ALLOWED_HOSTS = settings.ALLOWED_HOSTS
+#ALLOWED_HOSTS = settings.ALLOWED_HOSTS
 
 
 Coordinates = Coordinates()
@@ -63,14 +63,14 @@ def get_route(request):
         list_of_coordinates = route_json['0']
 
         # Save form object
-        obj.save()
+        #obj.save()
 
         route = RouteRequest(running_distance= running_distance,
                              user_location= str(user_location_info))
 
         if request.is_ajax():
             return JsonResponse({"coordinates": list_of_coordinates}, status=201) # 201 == created items
-        if next_url != None and is_safe_url(next_url, ALLOWED_HOSTS):
+        if next_url != None: #and is_safe_url(next_url, ALLOWED_HOSTS):
             return redirect(next_url)
     return render(
         request,
