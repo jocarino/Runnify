@@ -12,7 +12,7 @@ Django==3.0.5
 django-allauth==0.41.0
 django-crispy-forms==1.9.0
 django-debug-toolbar==2.2
-djangorestframework==3.11.1
+djangorestframework==3.11.2
 future==0.18.2
 geocoder==1.38.1
 geoip2==4.0.2
